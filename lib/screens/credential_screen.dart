@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import '../models/student_model.dart';
 
@@ -107,11 +106,12 @@ class _CredentialScreenState extends State<CredentialScreen>
           onPressed: () => Navigator.pop(context),
         ),
         // ⚡ Bebas Neue solo para el título del AppBar
-        title: Text(
+        title: const Text(
           'TIU VIRTUAL',
-          style: GoogleFonts.bebasNeue(
+          style: TextStyle(
+            fontFamily: 'BebasNeue',
             fontSize: 22,
-            color: const Color(0xFF1A1A2E),
+            color: Color(0xFF1A1A2E),
             letterSpacing: 1.5,
           ),
         ),
@@ -250,9 +250,10 @@ class _CredentialScreenState extends State<CredentialScreen>
                     Text(
                       firstNames,
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.bebasNeue(
+                      style: const TextStyle(
+                        fontFamily: 'BebasNeue',
                         fontSize: 40,
-                        color: const Color(0xFFE31937),
+                        color: Color(0xFFE31937),
                         letterSpacing: 1.0,
                         height: 1.05,
                       ),
@@ -262,9 +263,10 @@ class _CredentialScreenState extends State<CredentialScreen>
                       Text(
                         maskedNames,
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.bebasNeue(
+                        style: const TextStyle(
+                          fontFamily: 'BebasNeue',
                           fontSize: 40,
-                          color: const Color(0xFFE31937),
+                          color: Color(0xFFE31937),
                           letterSpacing: 1.0,
                           height: 1.05,
                         ),
