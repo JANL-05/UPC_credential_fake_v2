@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../models/student_model.dart';
 import 'credential_screen.dart';
 
@@ -29,6 +30,70 @@ class _FormScreenState extends State<FormScreen> {
   TimeOfDay? _startTime;
 
   final _picker = ImagePicker();
+
+  // ── Claves SharedPreferences ──
+  static const _kName   = 'saved_name';
+  static const _kCode   = 'saved_code';
+  static const _kBanner = 'saved_banner';
+  static const _kCareer = 'saved_career';
+  static const _kCampus = 'saved_campus';
+  static const _kDate   = 'saved_date';
+  static const _kTime   = 'saved_time';
+  static const _kPhoto  = 'saved_photo';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSaved();
+  }
+
+  Future<void> _loadSaved() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _nameCtrl.text   = prefs.getString(_kName)   ?? '';
+      _codeCtrl.text   = prefs.getString(_kCode)   ?? '';
+      _bannerCtrl.text = prefs.getString(_kBanner) ?? '';
+      _careerCtrl.text = prefs.getString(_kCareer) ?? '';
+      _campusCtrl.text = prefs.getString(_kCampus) ?? '';
+
+      final dateStr = prefs.getString(_kDate);
+      if (dateStr != null) _baseDate = DateTime.tryParse(dateStr);
+
+      final timeStr = prefs.getString(_kTime);
+      if (timeStr != null) {
+        final parts = timeStr.split(':');
+        if (parts.length == 2) {
+          _startTime = TimeOfDay(
+            hour: int.tryParse(parts[0]) ?? 0,
+            minute: int.tryParse(parts[1]) ?? 0,
+          );
+        }
+      }
+
+      final photoPath = prefs.getString(_kPhoto);
+      if (photoPath != null && File(photoPath).existsSync()) {
+        _photo = File(photoPath);
+      }
+    });
+  }
+
+  Future<void> _saveData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kName,   _nameCtrl.text.trim().toUpperCase());
+    await prefs.setString(_kCode,   _codeCtrl.text.trim().toUpperCase());
+    await prefs.setString(_kBanner, _bannerCtrl.text.trim().toUpperCase());
+    await prefs.setString(_kCareer, _careerCtrl.text.trim().toUpperCase());
+    await prefs.setString(_kCampus, _campusCtrl.text.trim());
+    if (_baseDate != null) {
+      await prefs.setString(_kDate, _baseDate!.toIso8601String());
+    }
+    if (_startTime != null) {
+      await prefs.setString(_kTime, '${_startTime!.hour}:${_startTime!.minute}');
+    }
+    if (_photo != null) {
+      await prefs.setString(_kPhoto, _photo!.path);
+    }
+  }
 
   // ────────── helpers ──────────
 
@@ -119,7 +184,7 @@ class _FormScreenState extends State<FormScreen> {
     if (picked != null) setState(() => _startTime = picked);
   }
 
-  void _submit() {
+  Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_baseDate == null) {
       _snack('Selecciona la fecha base');
@@ -129,6 +194,8 @@ class _FormScreenState extends State<FormScreen> {
       _snack('Selecciona la hora inicial');
       return;
     }
+
+    await _saveData();
 
     final model = StudentModel(
       photo: _photo,
@@ -141,6 +208,7 @@ class _FormScreenState extends State<FormScreen> {
       startTime: _startTime!,
     );
 
+    if (!mounted) return;
     Navigator.push(
       context,
       MaterialPageRoute(builder: (_) => CredentialScreen(student: model)),

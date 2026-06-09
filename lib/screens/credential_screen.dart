@@ -241,7 +241,8 @@ class _CredentialScreenState extends State<CredentialScreen>
                 ),
                 padding: const EdgeInsets.symmetric(
                     horizontal: 22, vertical: 16),
-                child: Column(
+                child: SingleChildScrollView(
+                  child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -348,6 +349,7 @@ class _CredentialScreenState extends State<CredentialScreen>
                     ),
                   ],
                 ),
+                ), // SingleChildScrollView
               ),
             ),
           ),
